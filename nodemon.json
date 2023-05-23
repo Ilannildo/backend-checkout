@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "npx ts-node --transpileOnly --ignore node_modules src/server.ts"
+}
