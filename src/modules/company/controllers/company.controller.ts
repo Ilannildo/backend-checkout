@@ -6,14 +6,16 @@ import { HttpStatus } from "../../../utils/constants/httpStatus";
 import { Codes } from "../../../utils/formatters/codes";
 import { sendError, sendSuccessful } from "../../../utils/formatters/responses";
 import { IPayServiceOrderResponse } from "./company.dto";
+import { LogTransactionModel, TRANSACTION_STATUS } from "../../../entity/LogTransaction";
 
 const companyDataSource = AppDataSource.getRepository(CompanyModel);
+const logTransactionDataSource =
+  AppDataSource.getRepository(LogTransactionModel);
 
 const createTransactionProvider = new CreateTransactionProvider();
 export const payServiceOrder = async (req: Request, response: Response) => {
   try {
     // recebe o body da requisição
-    const { service_order_id } = req.params;
     const {
       payment_method,
       installments,
@@ -35,7 +37,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       value,
       service_item_name,
       service_group_name,
-      appointment_id,
+      appointment_id
     } = req.body;
 
     const company = await companyDataSource.findOne({
@@ -53,10 +55,9 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       );
     }
 
-    const API_KEY =
-      process.env.NODE_ENV === "production"
-        ? company.token_producao
-        : company.token_homogacao;
+    const API_KEY = company.producao
+      ? company.token_producao
+      : company.token_homogacao;
 
     const transaction = await createTransactionProvider.execute({
       billing: {
@@ -84,11 +85,10 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       },
       clinic_id,
       value,
-      service_order_id,
+      appointment_id,
       gateway_api_token: API_KEY,
       service_item_name,
       service_group_name,
-      appointment_id,
     });
 
     if (!transaction) {
@@ -100,7 +100,10 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       );
     }
 
-    if (payment_method === "pix" && transaction.order.status === "pendente") {
+    if (
+      payment_method === "transferencia" &&
+      transaction.order.status === "pendente"
+    ) {
       const paymentPixResponse: IPayServiceOrderResponse = {
         payment_method: "pix",
         order_id: transaction.order.transaction_id,
@@ -123,6 +126,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       payment_method: payment_method,
       status: transaction.order.status,
       order_id: transaction.order.transaction_id,
+      error_message: transaction.order.error_message,
     };
 
     return sendSuccessful(
@@ -142,3 +146,99 @@ export const payServiceOrder = async (req: Request, response: Response) => {
     );
   }
 };
+
+export const closeServiceOrder = async (req: Request, response: Response) => {
+  const { order_id } = req.params;
+
+  try {
+    const service_order = await logTransactionDataSource.findOne({
+      where: {
+        idtransacao_gateway: order_id
+      },
+    });
+
+    if (!service_order) {
+      return sendError(
+        response,
+        Codes.UNKNOWN_ERROR,
+        "ErrorAo fechar a ordem de serviço",
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    service_order.status = TRANSACTION_STATUS.refused;
+    await logTransactionDataSource.save(service_order);
+
+    return sendSuccessful(response, {}, HttpStatus.NO_CONTENT);
+  } catch (error) {
+    return sendError(
+      response,
+      Codes.UNKNOWN_ERROR,
+      error.message,
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+export const updateServiceOrder = async (req: Request, response: Response) => {
+  const { order_id } = req.params;
+  const {status, processed_response} = req.body;
+  try {
+    const service_order = await logTransactionDataSource.findOne({
+      where: {
+        idtransacao_gateway: order_id
+      },
+    });
+
+    if (!service_order) {
+      return sendError(
+        response,
+        Codes.UNKNOWN_ERROR,
+        "ErrorAo fechar a ordem de serviço",
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    service_order.status = status;
+    service_order.response_processado = processed_response;
+    await logTransactionDataSource.save(service_order);
+
+    return sendSuccessful(response, {}, HttpStatus.NO_CONTENT);
+  } catch (error) {
+    return sendError(
+      response,
+      Codes.UNKNOWN_ERROR,
+      error.message,
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+export const getServiceOrder = async (req: Request, response: Response) => {
+  const { order_id } = req.params;
+  try {
+    const service_order = await logTransactionDataSource.findOne({
+      where: {
+        idtransacao_gateway: order_id
+      },
+    });
+
+    if (!service_order) {
+      return sendError(
+        response,
+        Codes.UNKNOWN_ERROR,
+        "ErrorAo fechar a ordem de serviço",
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return sendSuccessful(response, service_order, HttpStatus.OK);
+  } catch (error) {
+    return sendError(
+      response,
+      Codes.UNKNOWN_ERROR,
+      error.message,
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+}

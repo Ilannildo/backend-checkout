@@ -13,7 +13,5 @@ export const AppDataSource = new DataSource({
   database: config.DB_NAME,
   charset: config.DB_CHARSET,
   synchronize: true,
-  logging: false,
-  cache: true,
   entities: [CompanyModel, LogTransactionModel],
 });

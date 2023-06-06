@@ -4,15 +4,14 @@ import { LogTransactionModel } from "../entity/LogTransaction";
 import { PagarmeGateway } from "../services/pagarme-gateway.service";
 
 interface ICreateTransactionRepository {
-  payment_method: "credito" | "pix";
+  payment_method: "credito" | "transferencia";
   installments: number;
   value: number;
   clinic_id: string;
   service_item_name: string;
   service_group_name: string;
-  appointment_id: string;
   gateway_api_token: string;
-  service_order_id: string;
+  appointment_id?: string;
   customer: {
     name: string;
     email: string;
@@ -39,7 +38,6 @@ interface ICreateTransactionRepository {
 const logTransactionDataSource =
   AppDataSource.getRepository(LogTransactionModel);
 const paymentGatewayService = new PagarmeGateway();
-const companyDataSource = AppDataSource.getRepository(CompanyModel);
 
 export class CreateTransactionProvider {
   async execute({
@@ -50,11 +48,10 @@ export class CreateTransactionProvider {
     credit_card,
     value,
     clinic_id,
-    service_order_id,
+    appointment_id,
     gateway_api_token,
     service_item_name,
     service_group_name,
-    appointment_id,
   }: ICreateTransactionRepository) {
     try {
       const newTransaction = new LogTransactionModel();
@@ -63,7 +60,7 @@ export class CreateTransactionProvider {
       newTransaction.nome_cliente = customer.name;
       newTransaction.telefone_cliente = customer.phone;
       newTransaction.metodopagamento = payment_method;
-      newTransaction.idordemservico = service_order_id;
+      newTransaction.idagendamento = appointment_id;
       newTransaction.status = "iniciada";
       newTransaction.endereco_cliente = billing.address;
       newTransaction.cidade_cliente = billing.city;
@@ -81,12 +78,11 @@ export class CreateTransactionProvider {
         installments,
         credit_card,
         clinic_id,
-        service_order_id,
+        appointment_id,
         value,
         gateway_api_token,
         service_item_name,
         service_group_name,
-        appointment_id,
       });
 
       transaction.idtransacao_gateway = order.transaction_id;

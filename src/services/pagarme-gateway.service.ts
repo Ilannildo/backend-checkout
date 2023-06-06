@@ -15,13 +15,11 @@ export class PagarmeGateway implements IPaymentGatewayService {
     installments,
     credit_card,
     payment_method,
-    clinic_id,
-    service_order_id,
+    appointment_id,
     value,
     service_item_name,
     gateway_api_token,
     service_group_name,
-    appointment_id,
   }: IPaymentGatewayServiceCreateOrderRequest): Promise<IPaymentGatewayServiceCreateOrderResponse> {
     try {
       const pagarmeApi = axios.create({
@@ -61,7 +59,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
         };
       }
 
-      if (payment_method === "pix") {
+      if (payment_method === "transferencia") {
         paymentParams = {
           payment_method: "pix",
           pix: {
@@ -120,6 +118,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
         processed_response: JSON.stringify(response.data),
         transaction_id: charge.id,
         status: this.translateTransactionStatus(charge.status),
+        error_message: charge?.last_transaction?.acquirer_message ? charge.last_transaction.acquirer_message : null,
         card:
           payment_method === "credito"
             ? {
@@ -132,7 +131,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
               }
             : null,
         pix:
-          payment_method === "pix"
+          payment_method === "transferencia"
             ? {
                 code: charge.last_transaction.qr_code,
                 qr_code_url: charge.last_transaction.qr_code_url,

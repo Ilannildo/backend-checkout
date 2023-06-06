@@ -1,9 +1,8 @@
 export interface IPaymentGatewayServiceCreateOrderRequest {
-  payment_method: "credito" | "pix";
-  service_order_id: string;
+  payment_method: "credito" | "transferencia";
+  appointment_id?: string;
   clinic_id: string;
   service_item_name: string;
-  appointment_id: string;
   service_group_name: string;
   gateway_api_token: string;
   value: number;
@@ -35,6 +34,7 @@ export interface IPaymentGatewayServiceCreateOrderResponse {
   transaction_id: string;
   status: IPaymentGatewayServiceStatusResponse;
   processed_response: string;
+  error_message?: string;
   card?: {
     id: string;
     first_six_digits: string;

@@ -17,21 +17,7 @@ const isValidPhoneNumber: CustomValidator = (value) =>
   parsePhoneNumber(value, "BR").isValid();
 
 export const pay = [
-  param("service_order_id")
-    .not()
-    .isEmpty()
-    .withMessage({
-      message: "Alguns dados são obrigatórios",
-      code: Codes.REQUEST__MISSING_PARAMS,
-      status: HttpStatus.UNPROCESSABLE_ENTITY,
-    })
-    .isUUID()
-    .withMessage({
-      status: HttpStatus.UNPROCESSABLE_ENTITY,
-      code: Codes.REQUEST__INVALID_NAME,
-      message: "Esse método de pagamento não é válido",
-    }),
-  body("payment_type")
+  body("payment_method")
     .if(body("is_free").equals("false"))
     .not()
     .isEmpty()
@@ -58,7 +44,7 @@ export const pay = [
     .not()
     .isEmpty()
     .withMessage({
-      message: "O documento do participante é obrigatório",
+      message: "O documento do paciente é obrigatório",
       code: Codes.DOCUMENT__NOT_FOUND,
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     })
@@ -68,6 +54,16 @@ export const pay = [
       code: Codes.AUTH__INVALID_CPF,
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
+  body("customer_email").not().isEmpty().withMessage({
+    message: "O email do paciente é obrigatório",
+    code: Codes.DOCUMENT__NOT_FOUND,
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+  }),
+  body("customer_name").not().isEmpty().withMessage({
+    message: "O nome do paciente é obrigatório",
+    code: Codes.DOCUMENT__NOT_FOUND,
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+  }),
   body("customer_phone_number")
     .not()
     .isEmpty()
@@ -83,7 +79,7 @@ export const pay = [
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
   body("credit_card_number")
-    .if(body("payment_type").equals("credit"))
+    .if(body("payment_method").equals("credito"))
     .not()
     .isEmpty()
     .withMessage({
@@ -92,7 +88,7 @@ export const pay = [
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
   body("credit_card_expiration_date")
-    .if(body("payment_type").equals("credit"))
+    .if(body("payment_method").equals("credito"))
     .not()
     .isEmpty()
     .withMessage({
@@ -101,7 +97,7 @@ export const pay = [
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
   body("credit_card_cvv")
-    .if(body("payment_type").equals("credit"))
+    .if(body("payment_method").equals("credito"))
     .not()
     .isEmpty()
     .withMessage({
@@ -110,7 +106,7 @@ export const pay = [
       status: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
   body("credit_card_owner_name")
-    .if(body("payment_type").equals("credit"))
+    .if(body("payment_type").equals("credito"))
     .not()
     .isEmpty()
     .withMessage({
