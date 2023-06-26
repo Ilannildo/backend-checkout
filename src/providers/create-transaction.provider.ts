@@ -4,7 +4,7 @@ import { LogTransactionModel } from "../entity/LogTransaction";
 import { PagarmeGateway } from "../services/pagarme-gateway.service";
 
 interface ICreateTransactionRepository {
-  payment_method: "credito" | "transferencia";
+  payment_method: "credito" | "cartao" | "pix" | "transferencia";
   installments: number;
   value: number;
   clinic_id: string;

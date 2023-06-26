@@ -6,7 +6,10 @@ import { HttpStatus } from "../../../utils/constants/httpStatus";
 import { Codes } from "../../../utils/formatters/codes";
 import { sendError, sendSuccessful } from "../../../utils/formatters/responses";
 import { IPayServiceOrderResponse } from "./company.dto";
-import { LogTransactionModel, TRANSACTION_STATUS } from "../../../entity/LogTransaction";
+import {
+  LogTransactionModel,
+  TRANSACTION_STATUS,
+} from "../../../entity/LogTransaction";
 
 const companyDataSource = AppDataSource.getRepository(CompanyModel);
 const logTransactionDataSource =
@@ -37,7 +40,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       value,
       service_item_name,
       service_group_name,
-      appointment_id
+      appointment_id,
     } = req.body;
 
     const company = await companyDataSource.findOne({
@@ -101,7 +104,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
     }
 
     if (
-      payment_method === "transferencia" &&
+      (payment_method === "transferencia" || payment_method === "pix") &&
       transaction.order.status === "pendente"
     ) {
       const paymentPixResponse: IPayServiceOrderResponse = {
@@ -153,7 +156,7 @@ export const closeServiceOrder = async (req: Request, response: Response) => {
   try {
     const service_order = await logTransactionDataSource.findOne({
       where: {
-        idtransacao_gateway: order_id
+        idtransacao_gateway: order_id,
       },
     });
 
@@ -182,11 +185,11 @@ export const closeServiceOrder = async (req: Request, response: Response) => {
 
 export const updateServiceOrder = async (req: Request, response: Response) => {
   const { order_id } = req.params;
-  const {status, processed_response} = req.body;
+  const { status, processed_response } = req.body;
   try {
     const service_order = await logTransactionDataSource.findOne({
       where: {
-        idtransacao_gateway: order_id
+        idtransacao_gateway: order_id,
       },
     });
 
@@ -219,7 +222,7 @@ export const getServiceOrder = async (req: Request, response: Response) => {
   try {
     const service_order = await logTransactionDataSource.findOne({
       where: {
-        idtransacao_gateway: order_id
+        idtransacao_gateway: order_id,
       },
     });
 
@@ -241,4 +244,4 @@ export const getServiceOrder = async (req: Request, response: Response) => {
       HttpStatus.INTERNAL_SERVER_ERROR
     );
   }
-}
+};

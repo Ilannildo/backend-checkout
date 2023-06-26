@@ -35,7 +35,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
       const total_value = value * 100;
       let paymentParams;
 
-      if (payment_method === "credito") {
+      if (payment_method === "credito" || payment_method === "cartao") {
         paymentParams = {
           credit_card: {
             card: {
@@ -59,7 +59,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
         };
       }
 
-      if (payment_method === "transferencia") {
+      if (payment_method === "transferencia" || payment_method === "pix") {
         paymentParams = {
           payment_method: "pix",
           pix: {
@@ -112,15 +112,16 @@ export class PagarmeGateway implements IPaymentGatewayService {
       if (!charge) {
         throw new Error("Algo alconteceu na transação");
       }
-
-      console.log("PAGARME :::", response.request);
+      
       return {
         processed_response: JSON.stringify(response.data),
         transaction_id: charge.id,
         status: this.translateTransactionStatus(charge.status),
-        error_message: charge?.last_transaction?.acquirer_message ? charge.last_transaction.acquirer_message : null,
+        error_message: charge?.last_transaction?.acquirer_message
+          ? charge.last_transaction.acquirer_message
+          : null,
         card:
-          payment_method === "credito"
+          payment_method === "credito" || payment_method === "cartao"
             ? {
                 brand: charge.last_transaction?.card?.brand,
                 first_six_digits:
@@ -131,7 +132,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
               }
             : null,
         pix:
-          payment_method === "transferencia"
+          payment_method === "transferencia" || payment_method === "pix"
             ? {
                 code: charge.last_transaction.qr_code,
                 qr_code_url: charge.last_transaction.qr_code_url,
