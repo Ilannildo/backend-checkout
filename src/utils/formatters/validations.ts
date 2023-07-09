@@ -1,7 +1,7 @@
 import { Request } from "express";
-import { Location } from "express-validator/check";
 import { HttpStatus } from "../constants/httpStatus";
 import { Codes } from "./codes";
+import { Location } from "express-validator";
 
 interface ErrorResponse {
   code: Codes;

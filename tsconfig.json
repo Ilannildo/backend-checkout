@@ -6,7 +6,6 @@
     "experimentalDecorators": true,
     "noImplicitAny": true,
     "outDir": "./build",
-    "types": ["@types/node"],
     "rootDir": "./src",
     "typeRoots": ["./node_modules/@types", "./src/@types"],
     "esModuleInterop": true,
