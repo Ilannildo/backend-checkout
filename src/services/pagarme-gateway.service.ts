@@ -20,6 +20,8 @@ export class PagarmeGateway implements IPaymentGatewayService {
     service_item_name,
     gateway_api_token,
     service_group_name,
+    is_combo,
+    service_package_id,
   }: IPaymentGatewayServiceCreateOrderRequest): Promise<IPaymentGatewayServiceCreateOrderResponse> {
     try {
       const pagarmeApi = axios.create({
@@ -84,7 +86,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
             amount: total_value,
             description: service_group_name,
             quantity: 1,
-            code: appointment_id,
+            code: is_combo ? service_package_id : appointment_id,
           },
         ],
         customer: {
@@ -112,7 +114,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
       if (!charge) {
         throw new Error("Algo alconteceu na transação");
       }
-      
+
       return {
         processed_response: JSON.stringify(response.data),
         transaction_id: charge.id,

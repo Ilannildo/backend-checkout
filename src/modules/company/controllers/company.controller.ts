@@ -41,6 +41,8 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       service_item_name,
       service_group_name,
       appointment_id,
+      service_package_id,
+      is_combo
     } = req.body;
 
     const company = await companyDataSource.findOne({
@@ -92,6 +94,8 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       gateway_api_token: API_KEY,
       service_item_name,
       service_group_name,
+      service_package_id,
+      is_combo
     });
 
     if (!transaction) {

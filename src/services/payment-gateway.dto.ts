@@ -1,6 +1,8 @@
 export interface IPaymentGatewayServiceCreateOrderRequest {
   payment_method: "credito" | "cartao" | "pix" | "transferencia";
   appointment_id?: string;
+  service_package_id?: string;
+  is_combo?: boolean;
   clinic_id: string;
   service_item_name: string;
   service_group_name: string;

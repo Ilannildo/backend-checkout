@@ -7,11 +7,13 @@ interface ICreateTransactionRepository {
   payment_method: "credito" | "cartao" | "pix" | "transferencia";
   installments: number;
   value: number;
+  is_combo?: boolean;
   clinic_id: string;
   service_item_name: string;
   service_group_name: string;
   gateway_api_token: string;
   appointment_id?: string;
+  service_package_id?: string;
   customer: {
     name: string;
     email: string;
@@ -52,6 +54,8 @@ export class CreateTransactionProvider {
     gateway_api_token,
     service_item_name,
     service_group_name,
+    service_package_id,
+    is_combo
   }: ICreateTransactionRepository) {
     try {
       const newTransaction = new LogTransactionModel();
@@ -83,6 +87,8 @@ export class CreateTransactionProvider {
         gateway_api_token,
         service_item_name,
         service_group_name,
+        service_package_id,
+        is_combo
       });
 
       transaction.idtransacao_gateway = order.transaction_id;
