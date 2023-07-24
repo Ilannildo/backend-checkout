@@ -87,12 +87,7 @@ export class PagarmeGateway implements IPaymentGatewayService {
             amount: total_value,
             description: service_group_name,
             quantity: 1,
-            code:
-              is_combo && service_package_id
-                ? service_package_id
-                : appointment_id
-                ? appointment_id
-                : randomUUID(),
+            code: randomUUID(),
           },
         ],
         customer: {
@@ -111,6 +106,8 @@ export class PagarmeGateway implements IPaymentGatewayService {
         },
         payments: [paymentParams],
       };
+
+      console.log("TRANSACTION :", transactionParams);
 
       const response = await pagarmeApi.post("/orders", transactionParams);
 
