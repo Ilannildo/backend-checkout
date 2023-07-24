@@ -1,4 +1,5 @@
 import axios from "axios";
+import { randomUUID } from "crypto";
 import { addMinutes } from "date-fns";
 import { getAreaCodeAndNumber } from "../utils/roles";
 import { IPaymentGatewayService } from "./interfaces/payment-gateway.service";
@@ -86,7 +87,12 @@ export class PagarmeGateway implements IPaymentGatewayService {
             amount: total_value,
             description: service_group_name,
             quantity: 1,
-            code: is_combo ? service_package_id : appointment_id,
+            code:
+              is_combo && service_package_id
+                ? service_package_id
+                : appointment_id
+                ? appointment_id
+                : randomUUID(),
           },
         ],
         customer: {

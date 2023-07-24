@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../../../config/database";
 import { CompanyModel } from "../../../entity/Company";
+import {
+  LogTransactionModel,
+  TRANSACTION_STATUS,
+} from "../../../entity/LogTransaction";
 import { CreateTransactionProvider } from "../../../providers/create-transaction.provider";
 import { HttpStatus } from "../../../utils/constants/httpStatus";
 import { Codes } from "../../../utils/formatters/codes";
 import { sendError, sendSuccessful } from "../../../utils/formatters/responses";
 import { IPayServiceOrderResponse } from "./company.dto";
-import {
-  LogTransactionModel,
-  TRANSACTION_STATUS,
-} from "../../../entity/LogTransaction";
 
 const companyDataSource = AppDataSource.getRepository(CompanyModel);
 const logTransactionDataSource =
@@ -44,6 +44,8 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       service_package_id,
       is_combo
     } = req.body;
+
+    console.log("BODY ::", req.body);
 
     const company = await companyDataSource.findOne({
       where: {
