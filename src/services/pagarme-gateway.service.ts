@@ -16,13 +16,11 @@ export class PagarmeGateway implements IPaymentGatewayService {
     installments,
     credit_card,
     payment_method,
-    appointment_id,
     value,
     service_item_name,
     gateway_api_token,
     service_group_name,
-    is_combo,
-    service_package_id,
+    debit,
   }: IPaymentGatewayServiceCreateOrderRequest): Promise<IPaymentGatewayServiceCreateOrderResponse> {
     try {
       const pagarmeApi = axios.create({
@@ -38,7 +36,10 @@ export class PagarmeGateway implements IPaymentGatewayService {
       const total_value = value * 100;
       let paymentParams;
 
-      if (payment_method === "credito" || payment_method === "cartao") {
+      if (
+        (payment_method === "credito" || payment_method === "cartao") &&
+        !debit
+      ) {
         paymentParams = {
           credit_card: {
             card: {
@@ -59,6 +60,29 @@ export class PagarmeGateway implements IPaymentGatewayService {
             statement_descriptor: "DRCLICK AG",
           },
           payment_method: "credit_card",
+        };
+      }
+
+      if (payment_method === "cartao" && debit) {
+        paymentParams = {
+          debit_card: {
+            card: {
+              number: credit_card.number,
+              holder_name: credit_card.owner_name,
+              exp_month: Number(credit_card.expiration_date.split("/")[0]),
+              exp_year: Number(credit_card.expiration_date.split("/")[1]),
+              cvv: credit_card.cvv,
+              billing_address: {
+                line_1: `${billing.number}, ${billing.address}, ${billing.neighborhood}`,
+                zip_code: billing.zipcode,
+                city: billing.city,
+                state: billing.state,
+                country: billing.country,
+              },
+            },
+            statement_descriptor: "DRCLICK AG",
+          },
+          payment_method: "debit_card",
         };
       }
 

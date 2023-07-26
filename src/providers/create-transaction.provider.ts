@@ -1,5 +1,4 @@
 import { AppDataSource } from "../config/database";
-import { CompanyModel } from "../entity/Company";
 import { LogTransactionModel } from "../entity/LogTransaction";
 import { PagarmeGateway } from "../services/pagarme-gateway.service";
 
@@ -8,6 +7,7 @@ interface ICreateTransactionRepository {
   installments: number;
   value: number;
   is_combo?: boolean;
+  debit?: boolean;
   clinic_id: string;
   service_item_name: string;
   service_group_name: string;
@@ -55,7 +55,8 @@ export class CreateTransactionProvider {
     service_item_name,
     service_group_name,
     service_package_id,
-    is_combo
+    is_combo,
+    debit
   }: ICreateTransactionRepository) {
     try {
       const newTransaction = new LogTransactionModel();
@@ -88,7 +89,8 @@ export class CreateTransactionProvider {
         service_item_name,
         service_group_name,
         service_package_id,
-        is_combo
+        is_combo,
+        debit
       });
 
       transaction.idtransacao_gateway = order.transaction_id;

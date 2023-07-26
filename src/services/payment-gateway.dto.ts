@@ -3,6 +3,7 @@ export interface IPaymentGatewayServiceCreateOrderRequest {
   appointment_id?: string;
   service_package_id?: string;
   is_combo?: boolean;
+  debit?: boolean;
   clinic_id: string;
   service_item_name: string;
   service_group_name: string;

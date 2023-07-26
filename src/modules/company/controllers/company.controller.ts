@@ -42,6 +42,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       service_group_name,
       appointment_id,
       service_package_id,
+      debit,
       is_combo
     } = req.body;
 
@@ -97,7 +98,8 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       service_item_name,
       service_group_name,
       service_package_id,
-      is_combo
+      is_combo,
+      debit
     });
 
     if (!transaction) {

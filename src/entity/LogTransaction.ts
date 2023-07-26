@@ -25,7 +25,7 @@ export class LogTransactionModel extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   idlogtransacao: string;
 
-  @Column("text", {nullable: true})
+  @Column("text", { nullable: true })
   response_processado?: string;
 
   @Column("varchar", { nullable: true })
@@ -33,6 +33,9 @@ export class LogTransactionModel extends BaseEntity {
 
   @Column("varchar")
   metodopagamento: string;
+
+  @Column("boolean", { default: false })
+  debito: boolean;
 
   @Column("varchar", { nullable: true })
   idagendamento?: string;
