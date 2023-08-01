@@ -43,7 +43,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       appointment_id,
       service_package_id,
       debit,
-      is_combo
+      is_combo,
     } = req.body;
 
     console.log("BODY ::", req.body);
@@ -99,7 +99,7 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       service_group_name,
       service_package_id,
       is_combo,
-      debit
+      debit,
     });
 
     if (!transaction) {
@@ -133,11 +133,20 @@ export const payServiceOrder = async (req: Request, response: Response) => {
       );
     }
 
+    const messageErrorGatewayAprovedDefault = "Transação aprovada com sucesso";
+    const messageErrorGatewayAprovedRepleced = "Transação não autorizada";
+    
     const paymentPixResponse: IPayServiceOrderResponse = {
       payment_method: payment_method,
       status: transaction.order.status,
       order_id: transaction.order.transaction_id,
-      error_message: transaction.order.error_message,
+      error_message:
+        transaction.order.error_message &&
+        (transaction.order.error_message ===
+          messageErrorGatewayAprovedDefault ||
+          transaction.order.error_message.toLowerCase().includes("sucesso"))
+          ? messageErrorGatewayAprovedRepleced
+          : transaction.order.error_message,
     };
 
     return sendSuccessful(
